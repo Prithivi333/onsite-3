@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <title>Game of Life</title>
+    <style>
+        body {
+            padding: 0px;
+        }
+
+        #grid {
+            padding: 0px;
+            margin: auto;
+            height: 200px;
+            width: 200px;
+            grid-template-columns: repeat(20, 20fr);
+            border: 1px solid black;
+            box-sizing: border-box;
+            display: grid;
+        }
+
+        #grid>.tile {
+            padding: 0px;
+            height: 10px;
+            width: 10px;
+            box-sizing: border-box;
+            border: 1px solid blue;
+        }
+
+        .alive {
+            background-color: black;
+        }
+        .dead{
+            background-color: aqua;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="grid"></div>
+</body>
+<script>
+    var arrtop = [];
+    var arrryt = [];
+    var arrlft = [];
+    var arrbtm = [];
+    var corner = [];
+    for (let i = 1; i <= 400; i++) {
+        if (i == 1 || i == 20 || i == 381 || i == 400) {
+            corner.push(i);
+        }
+        else if (i % 20 == 0) {
+            arrryt.push(i);
+        }
+        else if (i % 20 == 1) {
+            arrlft.push(i);
+        }
+        else if (i < 20) {
+            arrtop.push(i);
+        }
+        else if (i > 381) {
+            arrbtm.push(i);
+        }
+    }
+    console.log(arrtop);
+    console.log(arrbtm);
+    console.log(arrryt);
+    console.log(arrlft);
+    console.log(corner);
+    drawGrid();
+    selecting();
+    //window.requestAnimationFrame(update);
+    update();
+
+    function drawGrid() {
+        var grid = document.getElementById('grid');
+        for (let i = 0; i < 20; i++) {
+            var id = i * 20;
+            for (let j = 0; j < 20; j++) {
+                id += 1;
+                var tile = document.createElement('div');
+                tile.setAttribute('class', 'tile');
+                tile.setAttribute('id', id);
+                grid.appendChild(tile);
+            }
+        }
+    }
+    function selecting() {
+        for (let i = 0; i < 20; i++) {
+            var chk = i * 20;
+            for (let j = 0; j < 20; j++) {
+                chk++;
+                if (Math.random() > 0.5) {
+                    document.getElementById(chk).setAttribute('class', 'tile alive');
+                }
+            }
+        }
+    }
+    function chkSurr(id) {
+        var doa = [];
+        if (arrtop.includes(id)) {
+            doa.push(chkAlive(id - 1));
+            doa.push(chkAlive(id + 1));
+            doa.push(chkAlive(id + 19));
+            doa.push(chkAlive(id + 20));
+            doa.push(chkAlive(id + 21));
+        }
+        else if (arrbtm.includes(id)) {
+            doa.push(chkAlive(id - 1));
+            doa.push(chkAlive(id + 1));
+            doa.push(chkAlive(id - 19));
+            doa.push(chkAlive(id - 20));
+            doa.push(chkAlive(id - 21));
+        }
+        else if (corner.includes(id)) {
+            if (id == 1) {
+                doa.push(chkAlive(id + 1));
+                doa.push(chkAlive(id + 20));
+                doa.push(chkAlive(id + 21));
+            }
+            else if (id == 50) {
+                doa.push(chkAlive(id - 1));
+                doa.push(chkAlive(id + 19));
+                doa.push(chkAlive(id + 20));
+            }
+            else if (id == 2451) {
+                doa.push(chkAlive(id + 1));
+                doa.push(chkAlive(id - 20));
+                doa.push(chkAlive(id - 21));
+            }
+            else if (id == 2500) {
+                doa.push(chkAlive(id - 1));
+                doa.push(chkAlive(id - 19));
+                doa.push(chkAlive(id - 20));
+            }
+        }
+        else if(arrryt.includes(id)){
+            doa.push(chkAlive(id-1));
+            doa.push(chkAlive(id-19));
+            doa.push(chkAlive(id+19));
+            doa.push(chkAlive(id+20));
+            doa.push(chkAlive(id-20));
+        }
+        else if(arrlft.includes(id)){
+            doa.push(chkAlive(id+1));
+            doa.push(chkAlive(id-19));
+            doa.push(chkAlive(id+21));
+            doa.push(chkAlive(id+20));
+            doa.push(chkAlive(id-20));
+        }
+        else{
+            doa.push(chkAlive(id-19));
+            doa.push(chkAlive(id-20));
+            doa.push(chkAlive(id-21));
+            doa.push(chkAlive(id-1));
+            doa.push(chkAlive(id+1));
+            doa.push(chkAlive(id+19));
+            doa.push(chkAlive(id+20));
+            doa.push(chkAlive(id+21));
+        }
+        return doa;
+    }
+    function chkAlive(id) {
+        //console.log(id);
+        if (document.getElementById(id).className === 'tile alive') {
+            return 'alive';
+        }
+        else {
+            return 'dead';
+        }
+    }
+    function update(){
+        var chk;
+        for(let i=1;i<=400;i++){
+            var alivec=0;
+            chk=chkSurr(i);
+            //console.log(chk);
+            for(let j=0;j<chk.length;j++){
+                if(chk[j]=='alive'){
+                    alivec++;
+                }
+            }
+            if(chkAlive(i)=='alive'){
+                if(alivec<2 || alivec>3){
+                    console.log(alivec);
+                    document.getElementById(i).setAttribute('class', 'tile dead');
+                }
+            }
+            else{
+                if(alivec==2 || alivec==3){
+                    console.log(alivec);
+                    document.getElementById(i).setAttribute('class', 'tile alive');
+                }
+            }
+        }
+        window.requestAnimationFrame(update);
+    }
+</script>
+
+</html>
